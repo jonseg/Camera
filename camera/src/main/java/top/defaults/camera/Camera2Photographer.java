@@ -854,7 +854,7 @@ public class Camera2Photographer implements InternalPhotographer {
             mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
             mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
             mediaRecorder.setOutputFile(nextVideoAbsolutePath);
-            mediaRecorder.setVideoEncodingBitRate(10000000);
+            mediaRecorder.setVideoEncodingBitRate(1000000);
             mediaRecorder.setVideoFrameRate(30);
             mediaRecorder.setVideoSize(videoSize.getWidth(), videoSize.getHeight());
             mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
