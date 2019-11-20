@@ -9,6 +9,7 @@ import android.content.res.Configuration;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
+import android.hardware.Camera;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
@@ -26,6 +27,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.MotionEvent;
 import android.view.OrientationEventListener;
@@ -46,8 +48,8 @@ public class Camera2Photographer implements InternalPhotographer {
     private static final SparseIntArray INTERNAL_FACINGS = new SparseIntArray();
 
     static {
-        INTERNAL_FACINGS.put(Values.FACING_BACK, CameraCharacteristics.LENS_FACING_BACK);
-        INTERNAL_FACINGS.put(Values.FACING_FRONT, CameraCharacteristics.LENS_FACING_FRONT);
+        INTERNAL_FACINGS.put(Values.FACING_BACK, Camera.CameraInfo.CAMERA_FACING_BACK);
+        INTERNAL_FACINGS.put(Values.FACING_FRONT, Camera.CameraInfo.CAMERA_FACING_FRONT);
     }
 
     private Activity activityContext;
@@ -300,15 +302,40 @@ public class Camera2Photographer implements InternalPhotographer {
         isPreviewStarted = true;
     }
 
+
     private boolean chooseCameraIdByFacing() {
         try {
             int internalFacing = INTERNAL_FACINGS.get(facing);
+
             final String[] ids = cameraManager.getCameraIdList();
             if (ids.length == 0) { // No camera
                 callbackHandler.onError(new Error(Error.ERROR_CAMERA, "No camera available."));
                 return false;
             }
+
+            int numberOfCameras = Camera.getNumberOfCameras();
+            for (int i = 0; i < numberOfCameras; i++) {
+                Camera.CameraInfo info = new Camera.CameraInfo();
+                Camera.getCameraInfo(i, info);
+                if (info.facing == internalFacing) {
+
+                    CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(String.valueOf(i));
+                    Integer internal = characteristics.get(CameraCharacteristics.LENS_FACING);
+                    if (internal == null) {
+                        callbackHandler.onError(new Error(Error.ERROR_CAMERA, "Unexpected state: LENS_FACING null."));
+                        return false;
+                    }
+                    else{
+                        updateCameraInfo(String.valueOf(i), characteristics);
+                        return true;
+                    }
+                }
+            }
+
+
+            /*
             for (String id : ids) {
+
                 CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(id);
 
                 Integer level = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
@@ -326,6 +353,7 @@ public class Camera2Photographer implements InternalPhotographer {
                     return true;
                 }
             }
+             */
 
             // Not found
             updateCameraInfo(ids[0], cameraManager.getCameraCharacteristics(ids[0]));
