@@ -730,6 +730,11 @@ public class Camera2Photographer implements InternalPhotographer {
         }
     }
 
+    @Override
+    public void setFillSpace(boolean fillSpace){
+        textureView.setFillSpace(fillSpace);
+    }
+
     private void startCaptureSession() {
         if (camera == null || textureView.getSurfaceTexture() == null
                 || (mode == Values.MODE_IMAGE && imageReader == null)) {

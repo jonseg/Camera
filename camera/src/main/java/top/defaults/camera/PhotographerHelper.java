@@ -21,4 +21,8 @@ public class PhotographerHelper {
     public void setFileDir(String fileDir) {
         Utils.setFileDir(fileDir);
     }
+
+    public void fillSpace(boolean fillSpace) {
+        photographer.setFillSpace(fillSpace);
+    }
 }

@@ -31,6 +31,8 @@ public interface Photographer {
 
     void setAspectRatio(AspectRatio ratio);
 
+    void setFillSpace(boolean fillSpace);
+
     AspectRatio getAspectRatio();
 
     void setAutoFocus(boolean autoFocus);
